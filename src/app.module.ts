@@ -1,9 +1,11 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { SlackModule } from './slack/slack.module';
-import { ConfigModule } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { join } from 'path';
+import { SlackModule } from './slack/slack.module';
+import { FeedbackModule } from './feedback/feedback.module';
+import { Feedback } from './feedback/feedback.entity';
+import { FeedbackUser } from './feedback/feedback-user.entity';
 
 @Module({
   imports: [
@@ -11,9 +13,24 @@ import { join } from 'path';
       envFilePath: [join(__dirname, '..', '.env')],
       isGlobal: true,
     }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres',
+        host: configService.get('DB_HOST'),
+        port: configService.get<number>('DB_PORT'),
+        username: configService.get('DB_USER'),
+        password: configService.get('DB_PASS'),
+        database: configService.get('DB_NAME'),
+        entities: [Feedback, FeedbackUser],
+        synchronize: configService.get('NODE_ENV') === 'development',
+      }),
+    }),
     SlackModule,
+    FeedbackModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}
