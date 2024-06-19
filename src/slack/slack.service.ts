@@ -48,13 +48,13 @@ export class SlackService {
   }
 
   async sendErrorMessage(userId: string, message: string, threadId?: string) {
-    const messageLink = `https://slack.com/archives/${
-      this.channelId
-    }/p${threadId.replace('.', '')}`;
-
-    const text = threadId
-      ? `${message}  <${messageLink}|메세지 보기>`
-      : message;
+    let text = message;
+    if (threadId) {
+      const messageLink = `https://slack.com/archives/${
+        this.channelId
+      }/p${threadId.replace('.', '')}`;
+      text += `  <${messageLink}|메세지 보기>`;
+    }
 
     await this.slackClient.chat.postEphemeral({
       channel: this.channelId,
