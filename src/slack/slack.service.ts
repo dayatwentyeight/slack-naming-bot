@@ -31,7 +31,7 @@ export class SlackService {
 
   private toSnakeCase(str: string): string {
     return str
-      .replace(/\s+/g, ' ')
+      .replace(/[-\s]+/g, ' ')
       .trim()
       .split(' ')
       .map((word) => word.toLowerCase())
