@@ -38,7 +38,7 @@ describe('AnalyzerService', () => {
 
   it('should return translation text', async () => {
     const result: AxiosResponse = {
-      data: { data: ['translated text'] },
+      data: { result: 'translated text' },
       status: 200,
       statusText: 'OK',
       headers: {},

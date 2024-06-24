@@ -5,23 +5,25 @@ import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class AnalyzerService {
-  private analyzerUrl: string;
+  private analyzerConfig;
 
   constructor(
     private httpService: HttpService,
     private configService: ConfigService,
   ) {
-    this.analyzerUrl = this.configService.get<string>('ANALYZER_URL');
+    this.analyzerConfig = {
+      host: this.configService.get<string>('ANALYZER_HOST'),
+    };
   }
 
   async getTranslation(text: string): Promise<string> {
     try {
       const response = await firstValueFrom(
-        this.httpService.post(`${this.analyzerUrl}/translate`, {
-          texts: [text],
+        this.httpService.post(`${this.analyzerConfig.host}/translate`, {
+          text,
         }),
       );
-      return response.data.data[0];
+      return response.data.result;
     } catch (error) {
       throw new Error('Translation service failed');
     }
