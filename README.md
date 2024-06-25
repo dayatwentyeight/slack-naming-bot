@@ -1,10 +1,11 @@
 ## Description
+
 - [슬랙 API](https://api.slack.com/)와 [NestJS](https://nestjs.com/)를 이용해 만든 슬랙 변수 네이밍 봇입니다.
 - Slash Commands, Interactivity 설정이 완료된 슬랙 API 앱과 연결 후 사용할 수 있습니다.
-- 한글을 영어로 번역하는 모듈을 별도로 설치해야 합니다. 
-
+- 한글을 영어로 번역하는 모듈을 별도로 설치해야 합니다.
 
 ## Installation
+
 ```bash
 $ npm install
 ```
@@ -24,7 +25,7 @@ DB_USER= # database username
 DB_PASS= # database password
 DB_NAME= # database name
 
-ANALYZER_URL= # http://...
+ANALYZER_HOST= # http://...
 ```
 
 - 아래 명령어를 이용해 서버를 실행합니다.
@@ -51,4 +52,5 @@ $ npm run test:cov
 ```
 
 ## License
+
 MIT licensed
