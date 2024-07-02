@@ -1,10 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
+import { WebClient } from '@slack/web-api';
+import { NotFoundException, NotImplementedException } from '@nestjs/common';
 import { SlackService } from './slack.service';
 import { AnalyzerService } from './analyzer.service';
 import { FeedbackService } from '../feedback/feedback.service';
-import { WebClient } from '@slack/web-api';
-import { NotFoundException } from '@nestjs/common';
 
 // Mock Slack WebClient
 jest.mock('@slack/web-api', () => {
@@ -82,6 +82,32 @@ describe('SlackService', () => {
 
     // Inject mock client
     slackService['slackClient'] = slackClientMock;
+  });
+
+  describe('cleanVariableName', () => {
+    it('should parse safely input variable', () => {
+      const input = '1_million_count';
+      const expectedOutput = '_1_million_count';
+      const result = slackService['cleanVariableName'](input);
+      expect(result).toBe(expectedOutput);
+    });
+
+    it('should throw NotImplementedException if validation fails', () => {
+      console.error = jest.fn(); // Mock console.error
+      const input = '';
+      try {
+        slackService['cleanVariableName'](input);
+      } catch (e) {
+        expect(console.error).toHaveBeenCalledWith(
+          'Validation error:',
+          expect.any(Object),
+        );
+        expect(e).toBeInstanceOf(NotImplementedException);
+        expect(e.message).toBe(
+          'Translation result is not suitable for a variable name',
+        );
+      }
+    });
   });
 
   describe('toCamelCase', () => {

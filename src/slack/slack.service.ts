@@ -1,9 +1,14 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  NotImplementedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Block, WebClient } from '@slack/web-api';
 import { AnalyzerService } from './analyzer.service';
 import { FeedbackService } from '../feedback/feedback.service';
 import { Feedback } from '../feedback/feedback.entity';
+import { variableNameSchema } from './variable-name.schema';
 
 @Injectable()
 export class SlackService {
@@ -20,31 +25,46 @@ export class SlackService {
     this.slackClient = new WebClient(slackKey);
   }
 
+  private cleanVariableName(variableName: string): string {
+    const result = variableNameSchema.safeParse(variableName);
+    if (!result.success) {
+      console.error('Validation error:', result.error);
+      // Validation error should throw 501 error
+      throw new NotImplementedException(
+        'Translation result is not suitable for a variable name',
+      );
+    }
+    return result.data;
+  }
+
   private toCamelCase(str: string): string {
-    return str
+    const camelCased = str
       .toLowerCase()
       .replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, (match, index) =>
         index === 0 ? match.toLowerCase() : match.toUpperCase(),
       )
       .replace(/\s+/g, '');
+    return this.cleanVariableName(camelCased);
   }
 
   private toSnakeCase(str: string): string {
-    return str
+    const snakeCased = str
       .replace(/[-\s]+/g, ' ')
       .trim()
       .split(' ')
       .map((word) => word.toLowerCase())
       .join('_');
+    return this.cleanVariableName(snakeCased);
   }
 
   private toPascalCase(str: string): string {
-    return str
+    const pascalCased = str
       .replace(
         /\w\S*/g,
         (txt) => txt.charAt(0).toUpperCase() + txt.substring(1).toLowerCase(),
       )
       .replace(/\s+/g, '');
+    return this.cleanVariableName(pascalCased);
   }
 
   async sendErrorMessage(userId: string, message: string, threadId?: string) {
